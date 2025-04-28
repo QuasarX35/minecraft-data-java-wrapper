@@ -32,8 +32,7 @@ jobs:
       - name: Upload JAR as release asset
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ github.event.release.upload_url }}
-          asset_path: ${{ steps.find-jar.outputs.JAR_FILE }}
+          upload_url: ${{ github.event.release_url }} # This will be available in the 'create-release' step output
           asset_name: ${{ steps.find-jar.outputs.JAR_FILE }}
           asset_content_type: application/java-archive
         env:
