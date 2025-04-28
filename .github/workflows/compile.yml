@@ -19,7 +19,7 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
       - run: mvn clean package -DskipTests
-      - run: mkdir staging && mv target/yb-workload-sim.jar target/yb-workload-sim-${{ env.build-number }}.jar && cp target/*.jar staging
+      - run: mkdir staging && mv target/minecraft-data-java-wrapper-1.0.0.jar target/minecraft-data-java-wrapper-${{ env.build-number }}.jar && cp target/*.jar staging
       - uses: actions/upload-artifact@v4
         with:
           name: Package
