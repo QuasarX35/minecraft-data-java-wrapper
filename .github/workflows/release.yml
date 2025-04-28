@@ -1,40 +1,38 @@
-# This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
-# For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
-
-name: Java CI to create and upload release on push
+name: Build and Release
 
 on:
-  push:
-    branches: [ "master" ]
-
-env:
-  build-number: ${GITHUB_RUN_NUMBER}
+  release:
+    types: [published]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-    permissions: write-all
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up JDK 24
-      uses: actions/setup-java@v4
-      with:
-        java-version: '24'
-        distribution: 'temurin'
-        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
-        settings-path: ${{ github.workspace }} # location for the settings.xml file
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      - name: Set up JDK 24
+        uses: actions/setup-java@v4
+        with:
+          java-version: '24'
+          distribution: 'temurin' # Or any other JDK distribution that supports JDK 24
 
-    - uses: "marvinpinto/action-automatic-releases@latest"
-      with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "latest"
-          prerelease: true
-          title: "Automated Build ${{ github.run_number }}"
-          files: |
-            LICENSE.txt
-            *.jar
+      - name: Build with Maven
+        run: mvn clean package
+
+      - name: Find JAR file
+        id: find-jar
+        run: |
+          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar")
+          echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
+
+      - name: Upload JAR as release asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: ${{ steps.find-jar.outputs.JAR_FILE }}
+          asset_name: ${{ steps.find-jar.outputs.JAR_FILE }}
+          asset_content_type: application/java-archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
