@@ -1,40 +1,34 @@
-name: Build and Release
-
+name: Java CI to create and upload release on pull request
 on:
   push:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
 
+env:
+  build-number: ${GITHUB_RUN_NUMBER}
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up JDK 24
-        uses: actions/setup-java@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
         with:
           java-version: '24'
-          distribution: 'temurin' # Or any other JDK distribution that supports JDK 24
-
-      - name: Build with Maven
-        run: mvn clean package
-
-      - name: Find JAR file
-        id: find-jar
-        run: |
-          JAR_FILE=$(find target -name "*.jar" -not -name "*-sources.jar" -not -name "*-javadoc.jar")
-          echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
-
-      - name: Upload JAR as release asset
-        uses: svenstaro/upload-release-action@v2
+          distribution: 'temurin'
+          cache: 'maven'
+      - run: mvn clean package -DskipTests
+      - run: mkdir staging && mv target/minecraft-data-java-wrapper-1.0.0.jar target/minecraft-data-java-wrapper-${{ env.build-number }}.jar && cp target/*.jar staging
+      - uses: actions/upload-artifact@v3
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ${{ steps.get-jar-path.outputs.JAR_FILE }}
-          asset_name: ${{ steps.get-jar-path.outputs.JAR_FILE }}
-          tag: ${{ github.ref_name }} # Using ref_name to get the tag without 'refs/tags/'
-          overwrite: true
-          body: "Release for ${{ github.ref_name }}" # You can customize this
+          name: Package
+          path: staging
+          retention-days: 1
+      - uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.YOUR-GITHUB-TOKEN }}"
+          automatic_release_tag: "${{ github.run_number }}"
+          title: "Automated Build ${{ github.run_number }}"
+          prerelease: true
+          files: staging/*.jar
