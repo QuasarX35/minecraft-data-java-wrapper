@@ -4,12 +4,13 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
 @Setter
+@Getter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Item {
-    private int id;
+    private Long id;
     private String name;
     private String displayName;
     private int stackSize;
+
 }

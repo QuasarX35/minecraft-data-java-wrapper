@@ -30,4 +30,14 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <build>
+        <resources>
+            <resource>
+                <directory>src/my-resources</directory>
+                <excludes>
+                    <exclude>[non-resource file #1]</exclude>
+                </excludes>
+            </resource>
+        </resources>
+    </build>
 </project>
