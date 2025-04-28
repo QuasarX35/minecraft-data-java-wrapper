@@ -12,7 +12,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # workaround for missing secret in fork PRs - see https://github.com/actions/checkout/issues/298
+      # see https://github.com/rectorphp/rector/commit/d395e1c28b8e6a56711dcc2e10490a82965850e4
+      -
+        if: github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with:
           java-version: '24'
@@ -27,7 +31,6 @@ jobs:
           retention-days: 1
       - uses: marvinpinto/action-automatic-releases@latest
         with:
-          repo_token: "${{ secrets.YOUR-GITHUB-TOKEN }}"
           automatic_release_tag: "${{ github.run_number }}"
           title: "Automated Build ${{ github.run_number }}"
           prerelease: true
