@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class MinecraftData {
@@ -20,7 +21,7 @@ public class MinecraftData {
             File dataPathsFile = new File("minecraft-data/data/dataPaths.json");
             dataPaths = mapper.readValue(dataPathsFile, Map.class);
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.log(Level.SEVERE, "Failed to read values from files: " + e.getMessage());
             dataPaths = Map.of(); // Empty map in case of error
         }
     }
