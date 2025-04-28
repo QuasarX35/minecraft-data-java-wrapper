@@ -30,10 +30,11 @@ jobs:
           echo "JAR_FILE=$JAR_FILE" >> $GITHUB_OUTPUT
 
       - name: Upload JAR as release asset
-        uses: actions/upload-release-asset@v1
+        uses: svenstaro/upload-release-action@v2
         with:
-          upload_url: ${{ github.event.release_url }} # This will be available in the 'create-release' step output
-          asset_name: ${{ steps.find-jar.outputs.JAR_FILE }}
-          asset_content_type: application/java-archive
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ steps.get-jar-path.outputs.JAR_FILE }}
+          asset_name: ${{ steps.get-jar-path.outputs.JAR_FILE }}
+          tag: ${{ github.ref_name }} # Using ref_name to get the tag without 'refs/tags/'
+          overwrite: true
+          body: "Release for ${{ github.ref_name }}" # You can customize this
