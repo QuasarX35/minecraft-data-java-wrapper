@@ -30,6 +30,13 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Github Repo</name>
+            <url>file:///path/to/mvn-repo</url>
+        </repository>
+    </distributionManagement>
 
     <build>
         <plugins>
@@ -47,14 +54,13 @@
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.1</version>
+                <configuration>
+                    <altDeploymentRepository>internal.repo::default::file:///path/to/mvn-repo</altDeploymentRepository>
+                </configuration>
+            </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/my-resources</directory>
-                <excludes>
-                    <exclude>[non-resource file #1]</exclude>
-                </excludes>
-            </resource>
-        </resources>
     </build>
 </project>
